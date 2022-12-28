@@ -1,19 +1,120 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+- '*'
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+- stage: Build
+  jobs:
+  - job: BuildCDKApplication
+    pool:
+      vmImage: 'ubuntu-22.04'
+    continueOnError: false
+    steps:
+      - script: |
+          sudo apt install nodejs
+          sudo apt install npm
+          node --version
+          npm --version
+        displayName: 'install Node.js and NPM'
+      - script: |
+          dotnet --list-sdks
+          dotnet --list-runtimes
+        displayName: 'verify .NET installation'
+      - script: |
+          npm install -g aws-cdk
+          cdk --version
+        displayName: 'install CDK'
+      - script: |
+          cd tryhard-aws-infrastructure/
+          cdk synth
+        displayName: 'synth CDK application'
+      - script: |
+          cd tryhard-aws-infrastructure/src/
+          dotnet test
+        displayName: 'test CDK application'
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)'
+          includeRootFolder: true
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/CDKApplication.zip'
+          replaceExistingArchive: true
+          verbose: true
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Pipeline.Workspace)'
+          artifact: 'CDKApplication'
+          publishLocation: 'pipeline'
+- stage: PreProductionDeployment
+  dependsOn: Build
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: PreProductionDeployment
+    pool:
+      vmImage: 'ubuntu-22.04'
+    environment: 'Pre-Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              sudo apt-get install awscli
+              aws configure set aws_access_key_id $(PRE_PROD_AWS_ACCESS_KEY_ID)
+              aws configure set aws_secret_access_key $(PRE_PROD_AWS_SECRET_ACCESS_KEY)
+              aws configure set aws_default_region $(AWS_DEFAULT_REGION)
+              aws --version
+            displayName: 'install and configure AWS CLI'
+          - script: |
+              sudo apt install nodejs
+              sudo apt install npm
+              node --version
+              npm --version
+            displayName: 'install Node.js and NPM'
+          - script: |
+              dotnet --list-sdks
+              dotnet --list-runtimes
+            displayName: 'verify .NET installation'
+          - script: |
+              npm install -g aws-cdk
+              cdk --version
+            displayName: 'install CDK'
+          - script: |
+              cd $(Pipeline.Workspace)/CDKApplication/s/tryhard-aws-infrastructure
+              cdk deploy --require-approval never
+            displayName: 'deploy CDK application'
+- stage: ProductionDeployment
+  dependsOn: PreProductionDeployment
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: ProductionDeployment
+    pool:
+      vmImage: 'ubuntu-22.04'
+    environment: 'Pre-Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              sudo apt-get install awscli
+              aws configure set aws_access_key_id $(PROD_AWS_ACCESS_KEY_ID)
+              aws configure set aws_secret_access_key $(PROD_AWS_SECRET_ACCESS_KEY)
+              aws configure set aws_default_region $(AWS_DEFAULT_REGION)
+              aws --version
+            displayName: 'install and configure AWS CLI'
+          - script: |
+              sudo apt install nodejs
+              sudo apt install npm
+              node --version
+              npm --version
+            displayName: 'install Node.js and NPM'
+          - script: |
+              dotnet --list-sdks
+              dotnet --list-runtimes
+            displayName: 'verify .NET installation'
+          - script: |
+              npm install -g aws-cdk
+              cdk --version
+            displayName: 'install CDK'
+          - script: |
+              cd $(Pipeline.Workspace)/CDKApplication/s/tryhard-aws-infrastructure
+              cdk deploy --require-approval never
+            displayName: 'deploy CDK application'
