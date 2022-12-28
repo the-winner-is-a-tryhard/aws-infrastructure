@@ -3,9 +3,9 @@ using Constructs;
 
 namespace TryhardAwsInfrastructure
 {
-    public class AvatarCdkStack : Stack
+    public class AvatarCdnStack : Stack
     {
-        internal AvatarCdkStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
+        internal AvatarCdnStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
             // The code that defines your stack goes here
         }

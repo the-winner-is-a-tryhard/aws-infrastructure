@@ -7,7 +7,7 @@ namespace TryhardAwsInfrastructure
         public static void Main(string[] args)
         {
             var app = new App();
-            new AvatarCdkStack(app, "AvatarCdkStack");
+            new AvatarCdnStack(app, "AvatarCdnStack");
             app.Synth();
         }
     }
