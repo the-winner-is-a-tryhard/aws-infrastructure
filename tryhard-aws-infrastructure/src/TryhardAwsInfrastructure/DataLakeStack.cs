@@ -45,7 +45,7 @@ namespace TryhardAwsInfrastructure
             DockerImageFunction nflPlayerLoadFunction = new DockerImageFunction(this, "NFLPlayerLoadFunction",
                 new DockerImageFunctionProps()
                 {
-                    Architecture = Architecture.ARM_64,
+                    Architecture = Architecture.X86_64,
                     Code = nflPlayerLoadPythonCode,
                     Description = "Lambda function for loading NFL player data from Sleeper",
                     Environment = new Dictionary<string, string>
