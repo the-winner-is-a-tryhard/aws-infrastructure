@@ -25,7 +25,8 @@ stages:
         displayName: 'install CDK'
       - script: |
           cd tryhard-aws-infrastructure/
-          cdk synth
+          cdk synth AvatarCdnStack
+          cdk synth DataLakeStack 
         displayName: 'synth CDK application'
       - script: |
           cd tryhard-aws-infrastructure/src/
@@ -79,7 +80,7 @@ stages:
             displayName: 'install CDK'
           - script: |
               cd $(Pipeline.Workspace)/CDKApplication/s/tryhard-aws-infrastructure
-              cdk deploy --require-approval never
+              cdk deploy --all --require-approval never
             displayName: 'deploy CDK application'
 - stage: ProductionDeployment
   dependsOn: PreProductionDeployment
@@ -116,5 +117,5 @@ stages:
             displayName: 'install CDK'
           - script: |
               cd $(Pipeline.Workspace)/CDKApplication/s/tryhard-aws-infrastructure
-              cdk deploy --require-approval never
+              cdk deploy --all --require-approval never
             displayName: 'deploy CDK application'
