@@ -8,6 +8,7 @@ namespace TryhardAwsInfrastructure
         {
             var app = new App();
             new AvatarCdnStack(app, "AvatarCdnStack");
+            new DataLakeStack(app, "DataLakeStack");
             app.Synth();
         }
     }
