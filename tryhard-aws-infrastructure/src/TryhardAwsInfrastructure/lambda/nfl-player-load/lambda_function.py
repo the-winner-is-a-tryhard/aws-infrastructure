@@ -7,7 +7,7 @@ import requests
 def lambda_handler(event, context):
     s3_client = boto3.client('s3')
     s3_bucket_name = os.environ.get('DATALAKE_S3_BUCKET_NAME')
-    s3_object_uri = 'sleeper/player_data.parquet'
+    s3_object_uri = 'sleeper/nfl-player-data/player-data.parquet'
     sleeper_api_url = "https://api.sleeper.app/v1/players/nfl"
     response = requests.get(sleeper_api_url)
     response.raise_for_status()
