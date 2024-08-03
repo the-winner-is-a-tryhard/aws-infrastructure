@@ -35,11 +35,15 @@ namespace TryhardAwsInfrastructure
                                 {
                                     Actions = new [] { "s3:*" },
                                     Resources = new [] { dataLakeBucket.BucketArn, dataLakeBucket.ArnForObjects("*") }
+                                }),
+                                new PolicyStatement(new PolicyStatementProps()
+                                {
+                                    Actions = new [] { "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents" },
+                                    Resources = new [] { "*" }
                                 })
                             }
                         })
                     }),
-                    ManagedPolicy.FromAwsManagedPolicyName("AWSLambdaBasicExecutionRole"),  
                 }
             });
             DockerImageCode nflPlayerLoadPythonCode = DockerImageCode.FromImageAsset("src/TryhardAwsInfrastructure/lambda/nfl-player-load");
