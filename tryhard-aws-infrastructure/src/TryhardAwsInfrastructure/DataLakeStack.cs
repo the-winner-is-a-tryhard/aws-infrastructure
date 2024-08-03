@@ -39,7 +39,7 @@ namespace TryhardAwsInfrastructure
                             }
                         })
                     }),
-                    ManagedPolicy.FromManagedPolicyName(this, "AWSLambdaBasicExecutionRole", "AWSLambdaBasicExecutionRole"),  
+                    ManagedPolicy.FromAwsManagedPolicyName("AWSLambdaBasicExecutionRole"),  
                 }
             });
             DockerImageCode nflPlayerLoadPythonCode = DockerImageCode.FromImageAsset("src/TryhardAwsInfrastructure/lambda/nfl-player-load");
